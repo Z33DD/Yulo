@@ -3,7 +3,7 @@ Yulo is a tool designed to help you with your daily work. No more, no less. It i
 
 ## Installation
 ```bash
-git clone https://github.com/z33dd/Yulo.git
+git clone https://github.com/Z33DD/Yulo.git
 cd Yulo
 bash install.sh
 ```
