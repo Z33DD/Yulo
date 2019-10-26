@@ -1,0 +1,48 @@
+# yulo configuration file
+
+editor: vim
+
+parameters:
+  init: custom init script
+  time: What time?
+  battery: Energy moves the world
+  code: Because is the code that change the world
+  web: Discover the world
+  ip: Get your public and private ip
+  crypt-price: Show some cryptocurrencies price in fiat currency
+  speedtest: Test your connection
+
+#drafts
+folder_defalt: Downloads/yDrafts
+
+dots:
+  ruby: .rb
+  python: .py
+  bash: .sh
+  C: .c
+  C++: .cpp
+  java: .java
+  javascript: .js
+
+leanguages:
+  c_based:
+    - .c
+    - .cpp
+  others:
+    .py: python3
+    .rb: ruby
+    .sh: bash
+    .js: node
+    .java: javac
+
+
+# crypto-price
+crypto:
+  - bitcoin
+  - ethereum
+#  - monero
+#  - nano
+fiats:
+  - usd
+#  - eur
+#  - gbp

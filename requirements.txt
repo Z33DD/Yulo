@@ -1,0 +1,5 @@
+speedtest-cli
+termcolor
+psutil
+pycoingecko
+pyyaml
