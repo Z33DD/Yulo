@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="logo.png" width="250"/>
+  <img src="logo.png" width="400"/>
 </p>
 
 Yulo is a tool designed to help you with your daily work. No more, no less. It is highly configurable and customizable because the person who best knows your needs is you.
