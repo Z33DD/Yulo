@@ -1,6 +1,6 @@
 # Yulo
 
-![](logo.png =250x)
+![](logo.png =250x123)
 
 Yulo is a tool designed to help you with your daily work. No more, no less. It is highly configurable and customizable because the person who best knows your needs is you.
 
