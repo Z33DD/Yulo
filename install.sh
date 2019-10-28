@@ -3,5 +3,6 @@ if [[ whoami == root ]]; then
   exit
 fi
 
+sudo apt-get install -y python3 python-pip
 python3 -m pip install -r requirements.txt --user
 export PATH=$PATH:$PWD
