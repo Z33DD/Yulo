@@ -10,7 +10,6 @@ git clone https://github.com/Z33DD/Yulo.git
 cd Yulo
 bash install.sh
 ```
-**INFO:** _The installation script is not yet ready, there is still work to be done to permanently include the main executable in the system $PATH (Help is welcome)._
 ## Usage
 It's just
 ```
