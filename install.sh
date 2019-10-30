@@ -3,6 +3,6 @@ if [[ whoami == root ]]; then
   exit
 fi
 
-sudo apt-get install -y python3 python-pip w3m
+sudo apt-get install -y gcc python3 python-pip python3-dev w3m
 python3 -m pip install -r requirements.txt --user
-export PATH=$PATH:$PWD
+echo "\nexport PATH=$PATH:$PWD/bin/" >> ~/.bashrc
