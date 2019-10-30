@@ -1,0 +1,312 @@
+#!/usr/bin/python3
+
+import sys
+import os
+import time
+
+import logging as log
+
+
+
+def get_path():
+    path = os.path.realpath(__file__)
+    path = path.split('/')
+    len_path = len(path)
+
+    rslt = ''
+
+    for i in path[:len_path-2]:
+        rslt = rslt + '{}/'.format(i)
+
+    return rslt
+
+def get_user():
+    user = os.popen("/usr/bin/whoami").read()
+    user_old = user
+    user = ''
+
+    for i in user_old:
+        if i is not '\n':
+            user = user + i
+
+    return user
+
+MAIN_PATH = get_path()
+USER = get_user()
+
+
+
+# Logging configuration
+log.basicConfig(filename='{}Logs/logfile.log'.format(MAIN_PATH),
+                    filemode='w',
+                    format='[%(asctime)s] %(levelname)s:    %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p',
+                    level=log.DEBUG)
+
+log.info("MAIN_PATH = {}".format(MAIN_PATH))
+log.info("USER = {}".format(USER))
+
+
+
+# Import modules
+try:
+    from termcolor import colored
+except ModuleNotFoundError:
+    log.warning("Import termcolor failed!")
+    exit(-1)
+
+try:
+    import yaml
+except ModuleNotFoundError:
+    log.warning("Import yaml failed!")
+    exit(-1)
+
+
+
+# Get configuration file
+with open("{}config.yml".format(MAIN_PATH), 'r') as ymlfile:
+    cfg = yaml.safe_load(ymlfile)
+
+
+def draft(path='/home/{}/Downloads'.format(USER)):
+    log.debug('path = {}'.format(path))
+
+    dots = cfg['dots']
+    log.debug('dots = {}'.format(dots))
+
+    if path[len(path) - 1] == '/':
+        aux = ''
+    else:
+        aux = '/'
+
+    ctrl = False
+    while not ctrl:
+        print("What language?")
+        for i in dots.keys():
+            print('* ' + i)
+        print('\n')
+
+        dot = input("What type of code?  ")
+        if not dot in dots.keys():
+            print("Oops, try again...")
+        else:
+            ctrl = True
+
+    file = 'draft' + dots.get(dot)
+
+    log.debug('file = {}'.format(path + aux + file))
+    log.debug('os.path.isfile = {}'.format(os.path.isfile(path + aux + file)))
+
+    if os.path.isfile(path + aux + file):
+        log.debug('os.path.isfile(path + aux + file) = True')
+
+        q = 0
+        while True:
+            try:
+                with open(path + aux + file, 'r') as f:
+                    log.debug('file = {}'.format(path + aux + file))
+                    if f.read() != '':
+                        q += 1
+                        file = 'draft_{}'.format(q) + dots.get(dot)
+                    else:
+                        log.debug('while break')
+                        break
+            except FileNotFoundError:
+                break
+
+
+    os.system('{} {}'.format(cfg['editor'], path + aux + file))
+
+    print("File created in {}".format(colored(path + aux + file, 'grey', 'on_white')))
+    if input('Do you want to rename the file? [y/N]  ') in ['yes', 'Yes', 'YES', 'y', 'Y']:
+        rfile = input("File Name:  ")
+        os.system('mv {} {}'.format(path + aux + file, path + aux + rfile))
+        print("File created in {}".format(path + aux + rfile))
+
+def battery():
+    try:
+        import psutil
+    except ModuleNotFoundError:
+        log.error("Import psutil failed!")
+        exit(-1)
+
+    battery = psutil.sensors_battery()
+    plugged = battery.power_plugged
+    percent = "%.0f" % battery.percent
+
+    if plugged==False:
+        plugged=colored(" False ", 'grey', 'on_red')
+    else:
+        plugged=colored(" True ", 'grey', 'on_green')
+
+    print("Battery:  " + colored(" {} ".format(percent), 'grey', 'on_white'))
+    print("Plugged:  {}".format(plugged))
+
+def run_code(file):
+    compiled = cfg['leanguages']['c_based']
+    interpreted = cfg['leanguages']['others']
+
+    ext = '.' + file.split('.')[1]
+
+    if ext in interpreted.keys():
+        os.system('{} {}'.format(interpreted[ext], file))
+    elif ext in compiled:
+        os.system('gcc {} -o {}'.format(file, file.split('.')[0]))
+        print("[i] Binary created in {}".format(file.split('.')[0]))
+    else:
+        print("[W] Can't execute this type of code")
+
+def print_help():
+    Xparameters = cfg['parameters']
+    parameters = list(Xparameters.keys())
+
+    print('')
+    print(colored(' yulo ', 'white', 'on_cyan'))
+    print("  Hi, this script is a very customizable tool to help you\n")
+    for i in Xparameters.keys():
+        print("   {}: {}".format(i, Xparameters[i]))
+    print("\nMade by Z33DD\n")
+    exit(0)
+
+
+def main():
+    log.info('Program Start')
+
+    Xparameters = cfg['parameters']
+    parameters = list(Xparameters.keys())
+
+    log.debug('args number: {}'.format(len(sys.argv)))
+    if len(sys.argv) < 2:
+        show_help = True
+
+    else:
+        argument = sys.argv[1]
+        log.debug('argument = {}'.format(argument))
+        log.debug('parameters = {}'.format(parameters))
+
+        if argument in parameters:
+            show_help = False
+            log.debug('show_help = False')
+            pass
+        else:
+            show_help = True
+            log.debug('show_help = True')
+
+    if show_help:
+        print_help()
+    else:
+        if argument == 'time':
+            localtime = time.asctime( time.localtime(time.time()) )
+            print("Time: {}".format(localtime))
+
+        elif argument == 'init':
+            if len(sys.argv) > 2:
+                if sys.argv[2] == 'upgrade':
+                    print('Root Privileges, please')
+                    os.system('sudo echo Nice!')
+                    if 'W: Some index files failed to download. They have been ignored, or old ones used instead.' in os.popen("sudo apt-get update").read():
+                        print("No connection...")
+                        exit(-1)
+                    if "E: Could not get lock /var/lib/apt/lists/lock - open (11: Resource temporarily unavailable)" in os.popen("sudo apt-get update").read():
+                        print("Error...\nIt's another process using APT?\n")
+                        exit(-1)
+                    os.system('sudo apt-get update && sudo apt-get upgrade -y')
+            else:
+                command = 'bash '
+
+                path = MAIN_PATH.split('/')
+                len_path = len(path)
+
+                for i in path[:len_path-1]:
+                    command = command + '{}/'.format(i)
+
+                command = command + 'init_script.sh'
+
+                os.system(command)
+
+                exit(0)
+
+        elif argument == 'battery':
+            battery()
+
+        elif argument == 'code':
+            if len(sys.argv) > 2:
+                if sys.argv[2] == 'draft':
+                    if len(sys.argv) == 4:
+                        draft(sys.argv[3])
+                    else:
+                        draft()
+                elif sys.argv[2] == 'run':
+                    if len(sys.argv) == 4:
+                        file = sys.argv[3]
+                        run_code(file)
+                    else:
+                        log.error('Missing file as parameter...')
+            else:
+                print('     yulo code draft [path]')
+                print('     yulo code run [file]')
+
+        elif argument == 'ip':
+            try:
+                import socket
+                import urllib.request
+            except ModuleNotFoundError:
+                log.error("Import socket and urllib.request failed!")
+                exit(-1)
+
+            private_ip = socket.gethostbyname(socket.gethostname())
+            public_ip = urllib.request.urlopen('http://ip.42.pl/raw').read()
+
+            print("Private IP: {}".format(private_ip))
+            print("Public  IP: {}".format(public_ip.decode('utf8')))
+
+            exit(0)
+
+        elif argument == 'web':
+            os.system('w3m duck.com')
+            exit(0)
+
+        elif argument == 'crypt-price':
+            try:
+                from pycoingecko import CoinGeckoAPI
+            except ModuleNotFoundError:
+                log.error("Import pycoingecko failed!")
+                exit(-1)
+
+            coin_gecko_api = CoinGeckoAPI()
+
+            cryptos = ''
+            for a in cfg['crypto']:
+                cryptos = cryptos + a + ','
+
+            fiats = ''
+            for b in cfg['fiats']:
+                fiats = fiats + b + ','
+
+            log.debug("cryptos: '{}'".format(cryptos))
+            log.debug("fiats: '{}'".format(fiats))
+
+            data = coin_gecko_api.get_price(
+                    ids=cryptos,
+                    vs_currencies=fiats)
+
+
+            for crypto in data.keys():
+                print(colored(crypto.upper(), 'grey', 'on_magenta'))
+                for fiat in data[crypto].keys():
+                    print('\t{}:   ${}'.format(fiat.upper(), data[crypto][fiat]))
+                print('')
+
+        elif argument == 'speedtest':
+            os.system('speedtest --simple')
+            exit(0)
+
+        else:
+            log.debug('Type of parameter:')
+            for arg in parameters:
+                log.debug('\t{}: {}'.format(arg, type(arg)))
+            log.error('Argument is not in parameters')
+
+
+if __name__ == '__main__':
+    main()
